@@ -1,0 +1,25 @@
+{
+  "name": "asesor-pedagogico-con-ia",
+  "version": "1.0.0",
+  "description": "Aplicación Next.js para crear actividades pedagógicas con IA",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [
+    "nextjs",
+    "educación",
+    "ia"
+  ],
+  "author": "Marco Carlos Avalos Rosado",
+  "license": "MIT",
+  "dependencies": {
+    "docx": "^8.0.5",
+    "file-saver": "^2.0.5",
+    "next": "13.4.19",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
