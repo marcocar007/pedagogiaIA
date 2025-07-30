@@ -16,10 +16,10 @@
   "author": "Marco Carlos Avalos Rosado",
   "license": "MIT",
   "dependencies": {
-    "docx": "^8.0.5",
+    "docx": "^9.5.1",
     "file-saver": "^2.0.5",
-    "next": "13.4.19",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "next": "^15.4.5",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
