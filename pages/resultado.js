@@ -2,8 +2,9 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { saveAs } from 'file-saver';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } from 'docx';
 
-// Simulación de función cerebral y rúbrica (puedes conectar con IA o BD)
 function obtenerFuncionCerebral(tipo, nivel) {
   if (tipo === 'Cognitivo') return 'Procesos ejecutivos: análisis, memoria y razonamiento.';
   if (tipo === 'Afectivo') return 'Sistema límbico: emociones, motivación, valoración.';
@@ -35,7 +36,6 @@ export default function Resultado() {
   const router = useRouter();
 
   useEffect(() => {
-    // Cargar datos de localStorage
     const tipoAprendizaje = localStorage.getItem('tipoAprendizaje');
     const nivelAprendizaje = localStorage.getItem('nivelAprendizaje');
     const via = localStorage.getItem('via');
@@ -53,6 +53,71 @@ export default function Resultado() {
   }, []);
 
   if (!datos || !propuesta) return null;
+
+  const handleWord = async () => {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({ text: 'Actividad seleccionada', bold: true, size: 32 }),
+              ],
+              spacing: { after: 200 },
+            }),
+            new Paragraph({ text: `Vía pedagógica: ${datos.via}` }),
+            new Paragraph({ text: `Nivel de uso de IA: ${datos.via === 'Vía 1' ? 'Sin IA o uso muy restringido' : 'Con colaboración activa de IA'}` }),
+            new Paragraph({ text: `Tipo de aprendizaje: ${datos.tipoAprendizaje}` }),
+            new Paragraph({ text: `Nivel: ${datos.nivelAprendizaje}` }),
+            new Paragraph({ text: `Función cerebral que se activa: ${obtenerFuncionCerebral(datos.tipoAprendizaje, datos.nivelAprendizaje)}` }),
+            new Paragraph({ text: `Objetivo de aprendizaje: Desarrollar la habilidad de ${datos.nivelAprendizaje?.toLowerCase()} en la materia seleccionada, aplicando el enfoque pedagógico elegido.` }),
+            new Paragraph({ text: `Contexto educativo:`, spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: `• Ambiente: ${datos.ambiente}` }),
+            new Paragraph({ text: `• Conocimientos previos: ${datos.conocPrevios}` }),
+            new Paragraph({ text: `• Motivación: ${datos.motivacion}` }),
+            new Paragraph({ text: `• Formas de aprender: ${datos.formasAprender}` }),
+            new Paragraph({ text: `• Tecnología disponible: ${datos.tecnologia}` }),
+            new Paragraph({ text: `• Duración estimada: ${datos.duracion}` }),
+            new Paragraph({ text: `• Indicaciones/restricciones: ${datos.indicaciones}` }),
+            new Paragraph({ text: 'Materiales y tecnologías necesarias: Proyector, computadora, acceso a Internet, materiales impresos, etc. (personaliza según tu contexto)', spacing: { before: 200, after: 100 } }),
+            new Paragraph({ text: 'Descripción paso a paso de la actividad:' }),
+            new Paragraph({ text: '1. Presenta el objetivo y contexto de la actividad a los estudiantes.' }),
+            new Paragraph({ text: '2. Explica la modalidad (con o sin IA) según la vía pedagógica elegida.' }),
+            new Paragraph({ text: `3. Realiza la actividad: ${propuesta.titulo}. ${propuesta.descripcion}` }),
+            new Paragraph({ text: '4. Supervisa y acompaña a los estudiantes según sus necesidades.' }),
+            new Paragraph({ text: '5. Recoge evidencias y evalúa con la rúbrica detallada.' }),
+            new Paragraph({ text: 'Rúbrica de evaluación:', spacing: { before: 200, after: 100 } }),
+            new Table({
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph('Criterio')], width: { size: 50, type: WidthType.PERCENTAGE } }),
+                    new TableCell({ children: [new Paragraph('Ponderación')], width: { size: 50, type: WidthType.PERCENTAGE } })
+                  ]
+                }),
+                ...rubrica.map(r =>
+                  new TableRow({
+                    children: [
+                      new TableCell({ children: [new Paragraph(r.criterio)] }),
+                      new TableCell({ children: [new Paragraph(`${Math.round(r.peso*100)}%`)] })
+                    ]
+                  })
+                )
+              ],
+              width: { size: 100, type: WidthType.PERCENTAGE }
+            }),
+            new Paragraph({
+              text: 'Gracias por utilizar esta aplicación. Recuerda: La IA puede mejorar y potenciar el proceso de enseñanza-aprendizaje, y para ello, el desafío no es tecnológico, es pedagógico.',
+              spacing: { before: 200, after: 100 },
+            })
+          ]
+        }
+      ]
+    });
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, 'Actividad_IA.docx');
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-black font-sans">
@@ -122,14 +187,16 @@ export default function Resultado() {
           <div className="mb-8 text-green-700 font-semibold">
             Gracias por utilizar esta aplicación. Recuerda: La IA puede mejorar y potenciar el proceso de enseñanza-aprendizaje, y para ello, el desafío no es tecnológico, es pedagógico.
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 mt-6">
             <button className="bg-blue-600 text-white py-2 px-4 rounded" onClick={()=>window.location.href='/'}>
               Crear una nueva actividad
             </button>
             <button className="bg-gray-200 text-black py-2 px-4 rounded" onClick={()=>window.print()}>
               Descargar en PDF
             </button>
-            {/* Botón de Word se puede implementar con una librería de exportación */}
+            <button className="bg-green-600 text-white py-2 px-4 rounded" onClick={handleWord}>
+              Exportar a Word
+            </button>
           </div>
         </div>
       </main>
